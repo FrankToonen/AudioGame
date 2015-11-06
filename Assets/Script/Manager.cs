@@ -4,14 +4,24 @@ using System.Collections.Generic;
 
 public class Manager : MonoBehaviour
 {
-    public GameObject lockPrefab;
+    public GameObject pinPrefab;
     public GameObject[] locks;
-    public List<int> indices;
+    List<int> indices;
+    AudioClip clip;
+    AudioSource source;
+    int amountOfPins;
 
     void Start()
     {
-        indices = new List<int>() { 0,1,2,3,4};
-        GenerateLocks();
+        source = GetComponent<AudioSource>();
+
+        amountOfPins = 5;
+
+        indices = new List<int>();
+        for (int i = 0; i < amountOfPins; i++)
+            indices.Add(i);
+
+        GeneratePins();
     }
 	
     void Update()
@@ -19,18 +29,16 @@ public class Manager : MonoBehaviour
 	
     }
 
-    void GenerateLocks()
+    void GeneratePins()
     {
-        int amountOfLocks = 5;
-        locks = new GameObject[amountOfLocks];
-        for (int i = 0; i < amountOfLocks; i++)
+        locks = new GameObject[amountOfPins];
+        for (int i = 0; i < amountOfPins; i++)
         {
-            GameObject newLock = Instantiate(lockPrefab, new Vector3(i, 0, 0), Quaternion.identity) as GameObject;
-            newLock.GetComponent<Lock>().Initialize(GetRandomIndex());
-            newLock.name = "Lock" + i;
+            GameObject newPin = Instantiate(pinPrefab, new Vector3(i, 0, 0), Quaternion.identity) as GameObject;
+            newPin.GetComponent<Pin>().Initialize(GetRandomIndex());
+            newPin.name = "Pin" + i;
 
-
-            locks [i] = newLock;
+            locks [i] = newPin;
         }
 
     }
@@ -43,11 +51,18 @@ public class Manager : MonoBehaviour
         return i;
     }
 
+    public void PlaySound(string assetName, int pitch = 1)
+    {
+        clip = Resources.Load<AudioClip>("Sounds/" + assetName);
+        source.pitch = pitch;
+        source.PlayOneShot(clip);
+    }
+
     public void Reset()
     {
         foreach (GameObject obj in locks)
         {
-            obj.GetComponent<Lock>().Reset();
+            obj.GetComponent<Pin>().Reset();
         }
     }
 }

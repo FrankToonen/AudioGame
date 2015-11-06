@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Lock : MonoBehaviour
+public class Pin : MonoBehaviour
 {
     Manager mgr;
     public float targetHeight;
@@ -16,35 +16,34 @@ public class Lock : MonoBehaviour
         GenerateHeight();
     }
 
-
-    // Use this for initialization
     void Start()
     {
 	
     }
 	
-    // Update is called once per frame
     void Update()
     {
-        if (transform.position.y < targetHeight)
+        if (transform.position.y > targetHeight)
         {
-            //Debug.Log("Loser");
+            mgr.PlaySound("Fail");
             mgr.Reset();
         } else if (Mathf.Abs(transform.position.y - targetHeight) < 0.2 && !isSet)
         {
-            //Debug.Log("Winner");
+            // Rumble controller
+            // Play sounds?
         }
 
         if (!isSet && !isMoving)
         {
-            float newY = Mathf.Clamp(transform.position.y + 0.15f, targetHeight, 0);
+            float newY = Mathf.Clamp(transform.position.y - 0.05f, 0, targetHeight);
             transform.position = new Vector3(transform.position.x, newY, 0);
+            mgr.PlaySound("MovePinDown");
         }
     }
 
     void GenerateHeight()
     {
-        targetHeight = -Random.value * 5;
+        targetHeight = Random.value * 2;
     }
 
     public void Reset()
@@ -53,7 +52,7 @@ public class Lock : MonoBehaviour
         GenerateHeight();
     }
 
-    public bool LockLock(int i)
+    public bool LockPin(int i)
     {
         if (Mathf.Abs(transform.position.y - targetHeight) < 0.2 && index == i)
         {
