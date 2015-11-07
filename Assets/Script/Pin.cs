@@ -4,35 +4,36 @@ using System.Collections;
 public class Pin : SoundGameObject
 {
     Manager mgr;
-    public float targetHeight;
-    [SerializeField]
-    int
-        index;
+    public float maxHeight, targetHeight;
+    int index;
     public bool isSet, isMoving;
+    bool pastTarget;
 
     public void Initialize(int index)
     {
         mgr = GameObject.Find("Manager").GetComponent<Manager>();
         this.index = index;
+        targetHeight = 0.2f;
         isSet = false;
+        pastTarget = false;
         GenerateHeight();
     }
 	
     void Update()
     {
-        if (transform.position.y > targetHeight)
+        if (transform.position.y > maxHeight)
         {
-            PlaySound("Fail");
+            PlayOneShot("Fail");
             mgr.Reset();
-        } else if (Mathf.Abs(transform.position.y - targetHeight) < 0.2 && !isSet)
+        } else if (Mathf.Abs(transform.position.y - maxHeight) < targetHeight && !isSet && !pastTarget && mgr.MatchIndices())
         {
-            // Rumble controller
-            // Play sounds?
+            PlaySound("click");
+            pastTarget = true;
         }
 
         if (!isSet && !isMoving)
         {
-            float newY = Mathf.Clamp(transform.position.y - 0.05f, 0, targetHeight);
+            float newY = Mathf.Clamp(transform.position.y - 0.05f, 0, maxHeight);
             transform.position = new Vector3(transform.position.x, newY, 0);
             PlaySound("MovePinDown");
         }
@@ -40,7 +41,7 @@ public class Pin : SoundGameObject
 
     void GenerateHeight()
     {
-        targetHeight = Random.value * 2;
+        maxHeight = Random.value * 2;
     }
 
     public void Reset()
@@ -51,7 +52,7 @@ public class Pin : SoundGameObject
 
     public bool LockPin(int i)
     {
-        if (Mathf.Abs(transform.position.y - targetHeight) < 0.2 && index == i)
+        if (Mathf.Abs(transform.position.y - maxHeight) < 0.2 && index == i)
         {
             isSet = true;
             return true;

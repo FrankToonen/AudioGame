@@ -70,7 +70,7 @@ public class Pick : SoundGameObject
             if (set)
             {
                 nextIndex++;
-                PlayOneShot("click");
+                PlayOneShot("click"); // Ander geluid
             } else
             {
                 lives --;
@@ -120,5 +120,15 @@ public class Pick : SoundGameObject
         ChangeIndex(-5);
         score = 0;
         mgr.Reset();
+    }
+
+    public int SelectedIndex
+    {
+        get { return selectedIndex;}
+    }
+
+    public int NextIndex
+    {
+        get { return nextIndex;}
     }
 }

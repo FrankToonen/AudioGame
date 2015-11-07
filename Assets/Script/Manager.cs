@@ -6,6 +6,7 @@ public class Manager : SoundGameObject
 {
     public GameObject pinPrefab;
     public GameObject[] pins;
+    public Pick player;
     List<int> indices;
     int amountOfPins;
 
@@ -13,12 +14,12 @@ public class Manager : SoundGameObject
     {
         base.Start();
 
-        amountOfPins = 5;
+        player = GameObject.FindWithTag("Player").GetComponent<Pick>();
 
+        amountOfPins = 5;
         indices = new List<int>();
         for (int i = 0; i < amountOfPins; i++)
             indices.Add(i);
-
         GeneratePins();
     }
 	
@@ -33,7 +34,6 @@ public class Manager : SoundGameObject
 
             pins [i] = newPin;
         }
-
     }
 
     int GetRandomIndex()
@@ -42,6 +42,11 @@ public class Manager : SoundGameObject
         int i = indices [r];
         indices.RemoveAt(r);
         return i;
+    }
+
+    public bool MatchIndices()
+    {
+        return player.NextIndex == pins [player.SelectedIndex].GetComponent<Pin>().Index;
     }
 
     public void Reset()
