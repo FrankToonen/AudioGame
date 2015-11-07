@@ -5,7 +5,7 @@ using System.Collections;
 public class SoundGameObject : MonoBehaviour
 {
     AudioClip clip;
-    AudioSource source;
+    protected AudioSource source;
 
     protected virtual void Start()
     {

@@ -1,12 +1,13 @@
 ﻿using UnityEngine;
 using System.Collections;
+using XInputDotNetPure;
 
 public class Pin : SoundGameObject
 {
     Manager mgr;
     public float maxHeight, targetHeight;
     int index;
-    public bool isSet, isMoving;
+    public bool isSet, isMoving, hitTop;
     bool pastTarget;
 
     public void Initialize(int index)
@@ -14,42 +15,58 @@ public class Pin : SoundGameObject
         mgr = GameObject.Find("Manager").GetComponent<Manager>();
         this.index = index;
         targetHeight = 0.2f;
-        isSet = false;
-        pastTarget = false;
-        GenerateHeight();
+        Reset();
     }
 	
     void Update()
     {
-        if (transform.position.y > maxHeight)
+        // Als de juiste pin te ver omhoog bewogen wordt:
+        if (transform.position.y >= maxHeight)
         {
-            PlayOneShot("Fail");
-            mgr.Reset();
-        } else if (Mathf.Abs(transform.position.y - maxHeight) < targetHeight && !isSet && !pastTarget && mgr.MatchIndices())
+            // Als de juiste pin geselecteerd is, verlies een leven en begin opnieuw:
+            if (mgr.MatchIndices())
+            {
+                mgr.player.LoseLife();
+                mgr.PlayOneShot("break");
+                mgr.Reset();
+            } // Anders speel geluid af:
+            else
+            {
+                if (!hitTop)
+                {
+                    hitTop = true;
+                    PlayOneShot("edge");
+                }
+            }
+        } // Anders als hij in een bepaald bereik van de maximale hoogte is:
+        else if (Mathf.Abs(transform.position.y - maxHeight) < targetHeight && !isSet && !pastTarget && mgr.MatchIndices())
         {
             PlaySound("click");
             pastTarget = true;
-        }
+        } 
 
-        if (!isSet && !isMoving)
+        // Als de pin niet geselecteerd is, beweeg hem dan terug naar de startpositie:
+        if (!isSet && !isMoving && transform.position.y != 0)
         {
             float newY = Mathf.Clamp(transform.position.y - 0.05f, 0, maxHeight);
             transform.position = new Vector3(transform.position.x, newY, 0);
-            PlaySound("MovePinDown");
+            hitTop = false;
+
+            // Speel geluid als de pin de bodem raakt?:
+            if (transform.position.y == 0)
+            {
+                PlaySound("edge");
+            }
         }
     }
 
+    // Genereer een random waarde voor de hoogte:
     void GenerateHeight()
     {
         maxHeight = Random.value * 2;
     }
 
-    public void Reset()
-    {
-        transform.position = new Vector3(transform.position.x, 0, 0);
-        GenerateHeight();
-    }
-
+    // Zet het slot vast onder bepaalde voorwaarde:
     public bool LockPin(int i)
     {
         if (Mathf.Abs(transform.position.y - maxHeight) < 0.2 && index == i)
@@ -59,6 +76,14 @@ public class Pin : SoundGameObject
         }
 
         return false;
+    }
+
+    public void Reset()
+    {
+        isSet = false;
+        pastTarget = false;
+        hitTop = false;
+        GenerateHeight();
     }
 
     public int Index

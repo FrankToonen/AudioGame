@@ -6,6 +6,7 @@ public class Pick : SoundGameObject
     Manager mgr;
     int selectedIndex, lives, nextIndex, score;
     float moveSpeed;
+    bool isResetting;
 
     protected override void Start()
     {
@@ -13,33 +14,26 @@ public class Pick : SoundGameObject
 
         mgr = GameObject.Find("Manager").GetComponent<Manager>();
 
-        selectedIndex = 0;
         moveSpeed = 0.01f;
-        lives = 5;
-        nextIndex = 0;
-        score = 0;
+
+        FullReset();
     }
 	
     void Update()
     {
         ProcesInput();
 
-        for (int i = 0; i < mgr.AmountOfPins; i++)
+        // Laat alle pins die de speler niet geselecteerd heeft terug omlaag bewegen:
+        for (int i = 0; i < mgr.NrOfPins; i++)
         {
             Pin pin = mgr.pins [i].GetComponent<Pin>();
             pin.isMoving = i == selectedIndex;
-        }
-
-        if (lives <= 0)
-        {
-            mgr.PlaySound("Fail");
-            Reset();
         }
     }
 
     void ProcesInput()
     {
-        // Horizontaal
+        // Pin selecteren:
         if (Input.GetButtonDown("Fire1"))
         {
             ChangeIndex(-1);
@@ -48,22 +42,25 @@ public class Pick : SoundGameObject
             ChangeIndex(1);
         }
         
-        // Verticaal
+        // Pin omhoog bewegen:
         if (Input.GetButton("Fire3"))
         {
             MovePin();
         } 
-        
+
+        // Stop het geluid als de knop losgelaten wordt:
         if (Input.GetButtonUp("Fire3"))
         {
             StopSound();
         } 
-        
+
+        // Speel het geluid van de pin af:
         if (Input.GetButtonUp("Fire4"))
         {
             FeelPin();
         }
-        
+
+        // Probeer de pin vast te zetten:
         if (Input.GetKeyDown(KeyCode.Space))
         {
             bool set = mgr.pins [selectedIndex].GetComponent<Pin>().LockPin(nextIndex);
@@ -73,53 +70,95 @@ public class Pick : SoundGameObject
                 PlayOneShot("click"); // Ander geluid
             } else
             {
-                lives --;
+                LoseLife();
                 PlayOneShot("break");
             }
         }
     }
 
+    // Beweeg de geselecteerde pin omhoog:
     void MovePin()
     {
         Pin selectedPin = mgr.pins [selectedIndex].GetComponent<Pin>();
         if (!selectedPin.GetComponent<Pin>().isSet)
         {
-            selectedPin.transform.position += new Vector3(0, moveSpeed, 0);
-            //selectedPin.isMoving = true;
-            PlaySound("tinkering");
-        }
+            Vector3 newPos = selectedPin.transform.position;
+            newPos += new Vector3(0, moveSpeed, 0);
+            newPos.y = Mathf.Clamp(newPos.y, 0, selectedPin.maxHeight);
+            selectedPin.transform.position = newPos;
+
+            if (selectedPin.transform.position.y != selectedPin.maxHeight)
+            {
+                PlaySound("tinkering");
+            }
+        } 
     }
 
+    // Selecteer een andere pin:
     void ChangeIndex(int amount)
     {
         selectedIndex += amount;
 
-        if (selectedIndex < 0 || selectedIndex >= mgr.pins.Length)
+        if (selectedIndex < 0 || selectedIndex >= mgr.NrOfPins)
         {
             selectedIndex = Mathf.Clamp(selectedIndex, 0, 4);
-            PlayOneShot("edge", 0.4f);
+            if (!isResetting)
+            {
+                PlayOneShot("edge", 0.4f);
+            }
         } else
         {
-            FeelPin();
+            if (amount != 0)
+            {
+                FeelPin();
+            }
         }
 
         transform.position = new Vector3(selectedIndex, -1.5f, 0);
-
     }
 
+    // Speel het geluid van de geselecteerd pin af:
     void FeelPin()
     {
-        float pitch = ((float)(mgr.pins [selectedIndex].GetComponent<Pin>().Index + 1) / mgr.AmountOfPins) + 0.5f;
+        float pitch = ((float)(mgr.pins [selectedIndex].GetComponent<Pin>().Index + 1) / mgr.NrOfPins) + 0.5f;
         PlayOneShot("movepick", 1, pitch);
     }
-    
-    void Reset()
+
+    // Geef de speler punten:
+    public void IncreaseScore(int nrOfPins)
     {
-        lives = 5;
-        nextIndex = 0;
-        ChangeIndex(-5);
+        score += nrOfPins * 5;
+    }
+
+    // Verlies levens. Wanneer je geen levens meer hebt, hard reset:
+    public void LoseLife()
+    {
+        lives--;
+        if (lives <= 0)
+        {
+            mgr.PlaySound("Fail");
+            mgr.FullReset();
+        }
+    }
+
+    public void FullReset()
+    {
         score = 0;
-        mgr.Reset();
+        lives = 5;
+
+        Reset();
+    }
+
+    // Reset naar begin puzzel:
+    public void Reset()
+    {
+        isResetting = true;
+
+        selectedIndex = 0;
+        ChangeIndex(0);
+        nextIndex = 0;
+
+        isResetting = false;
     }
 
     public int SelectedIndex
