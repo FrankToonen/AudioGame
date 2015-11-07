@@ -1,11 +1,13 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Pin : MonoBehaviour
+public class Pin : SoundGameObject
 {
     Manager mgr;
     public float targetHeight;
-    int index;
+    [SerializeField]
+    int
+        index;
     public bool isSet, isMoving;
 
     public void Initialize(int index)
@@ -15,17 +17,12 @@ public class Pin : MonoBehaviour
         isSet = false;
         GenerateHeight();
     }
-
-    void Start()
-    {
-	
-    }
 	
     void Update()
     {
         if (transform.position.y > targetHeight)
         {
-            mgr.PlaySound("Fail");
+            PlaySound("Fail");
             mgr.Reset();
         } else if (Mathf.Abs(transform.position.y - targetHeight) < 0.2 && !isSet)
         {
@@ -37,7 +34,7 @@ public class Pin : MonoBehaviour
         {
             float newY = Mathf.Clamp(transform.position.y - 0.05f, 0, targetHeight);
             transform.position = new Vector3(transform.position.x, newY, 0);
-            mgr.PlaySound("MovePinDown");
+            PlaySound("MovePinDown");
         }
     }
 
@@ -61,5 +58,10 @@ public class Pin : MonoBehaviour
         }
 
         return false;
+    }
+
+    public int Index
+    {
+        get { return index;  }
     }
 }

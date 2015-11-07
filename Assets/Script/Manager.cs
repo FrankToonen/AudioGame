@@ -2,18 +2,16 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class Manager : MonoBehaviour
+public class Manager : SoundGameObject
 {
     public GameObject pinPrefab;
-    public GameObject[] locks;
+    public GameObject[] pins;
     List<int> indices;
-    AudioClip clip;
-    AudioSource source;
     int amountOfPins;
 
-    void Start()
+    protected override void Start()
     {
-        source = GetComponent<AudioSource>();
+        base.Start();
 
         amountOfPins = 5;
 
@@ -24,21 +22,16 @@ public class Manager : MonoBehaviour
         GeneratePins();
     }
 	
-    void Update()
-    {
-	
-    }
-
     void GeneratePins()
     {
-        locks = new GameObject[amountOfPins];
+        pins = new GameObject[amountOfPins];
         for (int i = 0; i < amountOfPins; i++)
         {
             GameObject newPin = Instantiate(pinPrefab, new Vector3(i, 0, 0), Quaternion.identity) as GameObject;
             newPin.GetComponent<Pin>().Initialize(GetRandomIndex());
             newPin.name = "Pin" + i;
 
-            locks [i] = newPin;
+            pins [i] = newPin;
         }
 
     }
@@ -51,18 +44,16 @@ public class Manager : MonoBehaviour
         return i;
     }
 
-    public void PlaySound(string assetName, int pitch = 1)
-    {
-        clip = Resources.Load<AudioClip>("Sounds/" + assetName);
-        source.pitch = pitch;
-        source.PlayOneShot(clip);
-    }
-
     public void Reset()
     {
-        foreach (GameObject obj in locks)
+        foreach (GameObject obj in pins)
         {
             obj.GetComponent<Pin>().Reset();
         }
+    }
+
+    public int AmountOfPins
+    {
+        get { return amountOfPins; }
     }
 }
