@@ -63,7 +63,7 @@ public class Pin : SoundGameObject
     // Genereer een random waarde voor de hoogte:
     void GenerateHeight()
     {
-        maxHeight = Random.value * 2;
+        maxHeight = Random.value /** 2*/ + targetHeight;
     }
 
     // Zet het slot vast onder bepaalde voorwaarde:

@@ -1,9 +1,12 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 
 public class Pick : SoundGameObject
 {
     Manager mgr;
+    Text scoreText, livesText;
+
     int selectedIndex, lives, nextIndex, score;
     float moveSpeed;
     bool isResetting;
@@ -13,6 +16,8 @@ public class Pick : SoundGameObject
         base.Start();
 
         mgr = GameObject.Find("Manager").GetComponent<Manager>();
+        scoreText = GameObject.Find("ScoreText").GetComponent<Text>();
+        livesText = GameObject.Find("LivesText").GetComponent<Text>();
 
         moveSpeed = 0.01f;
 
@@ -101,7 +106,7 @@ public class Pick : SoundGameObject
 
         if (selectedIndex < 0 || selectedIndex >= mgr.NrOfPins)
         {
-            selectedIndex = Mathf.Clamp(selectedIndex, 0, 4);
+            selectedIndex = Mathf.Clamp(selectedIndex, 0, mgr.NrOfPins - 1);
             if (!isResetting)
             {
                 PlayOneShot("edge", 0.4f);
@@ -114,7 +119,7 @@ public class Pick : SoundGameObject
             }
         }
 
-        transform.position = new Vector3(selectedIndex, -1.5f, 0);
+        transform.position = new Vector3((1 - mgr.NrOfPins) + selectedIndex, -1.5f, 0);
     }
 
     // Speel het geluid van de geselecteerd pin af:
@@ -128,12 +133,15 @@ public class Pick : SoundGameObject
     public void IncreaseScore(int nrOfPins)
     {
         score += nrOfPins * 5;
+        scoreText.text = "Score: " + score;
     }
 
     // Verlies levens. Wanneer je geen levens meer hebt, hard reset:
     public void LoseLife()
     {
         lives--;
+        livesText.text = "Lives: " + lives;
+
         if (lives <= 0)
         {
             mgr.PlaySound("Fail");
@@ -144,7 +152,11 @@ public class Pick : SoundGameObject
     public void FullReset()
     {
         score = 0;
+        scoreText.text = "Score: " + score;
         lives = 5;
+        livesText.text = "Lives: " + lives;
+
+        transform.localScale = new Vector3(5, 1, 1);
 
         Reset();
     }

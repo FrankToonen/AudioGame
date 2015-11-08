@@ -7,6 +7,7 @@ public class Manager : SoundGameObject
     public GameObject pinPrefab;
     public GameObject[] pins;
     public Pick player;
+    GameObject frame, backplate;
     List<int> indices;
     int nrOfPins;
 
@@ -14,6 +15,8 @@ public class Manager : SoundGameObject
     {
         base.Start();
 
+        frame = GameObject.Find("Frame");
+        backplate = GameObject.Find("Backplate");
         player = GameObject.FindWithTag("Player").GetComponent<Pick>();
         FullReset();
     }
@@ -25,8 +28,20 @@ public class Manager : SoundGameObject
         {
             PlayOneShot("succes");
             player.IncreaseScore(nrOfPins);
+            player.transform.localScale += new Vector3(2, 0, 0);
             nrOfPins++;
+
+            frame.transform.localScale += new Vector3(0, 1, 0);
+            backplate.transform.localScale += new Vector3(2, 0, 0);
+
             Reset();
+        }
+
+        if (Input.GetKeyDown(KeyCode.V))
+        {
+            Color c = frame.GetComponent<Renderer>().material.color;
+            c.a = c.a == 1 ? 0.1f : 1;
+            frame.GetComponent<Renderer>().material.color = c;
         }
     }
 
@@ -87,6 +102,8 @@ public class Manager : SoundGameObject
     public void FullReset()
     {
         nrOfPins = 3;
+        frame.transform.localScale = new Vector3(5, nrOfPins - 1, 5);
+        backplate.transform.localScale = new Vector3(nrOfPins + 1, 5, 3);
         Reset();
     }
 
