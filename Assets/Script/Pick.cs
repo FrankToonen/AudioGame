@@ -7,7 +7,7 @@ public class Pick : SoundGameObject
     Manager mgr;
     Text scoreText, livesText;
 
-    int selectedIndex, lives, nextIndex, score;
+    int selectedIndex, lives, nextIndex, score, startingIndex;
     float moveSpeed;
     bool isResetting;
 
@@ -41,9 +41,11 @@ public class Pick : SoundGameObject
         // Pin selecteren:
         if (Input.GetButtonDown("Fire1"))
         {
+            startingIndex = selectedIndex;
             ChangeIndex(-1);
         } else if (Input.GetButtonDown("Fire2"))
         {
+            startingIndex = selectedIndex;
             ChangeIndex(1);
         }
         
@@ -107,16 +109,37 @@ public class Pick : SoundGameObject
         if (selectedIndex < 0 || selectedIndex >= mgr.NrOfPins)
         {
             selectedIndex = Mathf.Clamp(selectedIndex, 0, mgr.NrOfPins - 1);
+
             if (!isResetting)
             {
-                PlayOneShot("edge", 0.4f);
+                if (mgr.pins [selectedIndex].GetComponent<Pin>().isSet)
+                {
+                    ChangeIndex(-amount);
+                    return;
+                }
             }
+
+            /*if (!isResetting)
+            {
+                PlayOneShot("edge", 0.4f);
+            }*/
         } else
         {
-            if (amount != 0)
+            if (mgr.pins [selectedIndex].GetComponent<Pin>().isSet)
             {
-                FeelPin();
+                ChangeIndex(amount);
+                return;
             }
+            if (amount != 0 && startingIndex != selectedIndex)
+            {
+                //FeelPin();
+                PlayOneShot("changeindex", 0.05f);
+            }
+        }
+
+        if (startingIndex == selectedIndex && !isResetting)
+        {
+            PlayOneShot("edge", 0.4f);
         }
 
         transform.position = new Vector3((1 - mgr.NrOfPins) + selectedIndex, -1.5f, 0);
