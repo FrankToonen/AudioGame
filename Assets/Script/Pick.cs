@@ -169,6 +169,7 @@ public class Pick : SoundGameObject
         {
             mgr.PlaySound("Fail");
             mgr.FullReset();
+            FullReset();
         }
     }
 

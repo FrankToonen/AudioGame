@@ -10,6 +10,7 @@ public class Manager : SoundGameObject
     GameObject frame, backplate;
     List<int> indices;
     int nrOfPins;
+    float timeLeft, timeMax, timeTickLeft, timeTickMax;
 
     protected override void Start()
     {
@@ -23,6 +24,8 @@ public class Manager : SoundGameObject
 
     void Update()
     {
+        UpdateTimer();
+
         // Controleer of de speler alle pins gelocked heeft:
         if (CheckWin())
         {
@@ -37,6 +40,13 @@ public class Manager : SoundGameObject
             Reset();
         }
 
+        if (timeLeft <= 0)
+        {
+            PlayOneShot("fail");
+            FullReset();
+            player.FullReset();
+        }
+
         if (Input.GetKeyDown(KeyCode.V))
         {
             Color c = frame.GetComponent<Renderer>().material.color;
@@ -44,18 +54,7 @@ public class Manager : SoundGameObject
             frame.GetComponent<Renderer>().material.color = c;
         }
     }
-
-    // Loop over alle pins en return een boolean:
-    bool CheckWin()
-    {
-        bool won = true;
-        foreach (GameObject obj in pins)
-        {
-            won = won && obj.GetComponent<Pin>().isSet;
-        }
-        return won;
-    }
-	
+    	
     // Genereer een set pins:
     void GeneratePins()
     {
@@ -82,6 +81,23 @@ public class Manager : SoundGameObject
         }
     }
 
+    void UpdateTimer()
+    {
+        timeLeft = Mathf.Clamp(timeLeft - Time.deltaTime, 0, timeMax);
+        timeTickLeft = Mathf.Clamp(timeTickLeft - Time.deltaTime, 0, timeTickMax);
+
+        if (timeTickLeft <= 0)
+        {
+            PlayOneShot("edge", 0.4f);
+            if (timeLeft < 15)
+            {
+                timeTickMax = 0.5f;
+            }
+         
+            timeTickLeft = timeTickMax;
+        }
+    }
+
     // Haal een random waarde uit de lijst:
     int GetRandomIndex()
     {
@@ -91,6 +107,16 @@ public class Manager : SoundGameObject
         return i;
     }
 
+    // Loop over alle pins en return een boolean:
+    bool CheckWin()
+    {
+        bool won = timeLeft > 0;
+        foreach (GameObject obj in pins)
+        {
+            won = won && obj.GetComponent<Pin>().isSet;
+        }
+        return won;
+    }
 
     // Vergelijk de indices van de geselecteerde pin en welke index de speler moet doen:
     public bool MatchIndices()
@@ -102,6 +128,8 @@ public class Manager : SoundGameObject
     public void FullReset()
     {
         nrOfPins = 3;
+        timeMax = 30;
+        timeTickMax = 1;
         frame.transform.localScale = new Vector3(5, nrOfPins - 1, 5);
         backplate.transform.localScale = new Vector3(nrOfPins + 1, 5, 3);
         Reset();
@@ -112,6 +140,8 @@ public class Manager : SoundGameObject
     {
         GeneratePins();
         player.Reset();
+        timeLeft = timeMax;
+        timeTickLeft = timeTickMax;
     }
 
     public int NrOfPins
