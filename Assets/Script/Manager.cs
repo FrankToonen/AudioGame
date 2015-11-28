@@ -32,6 +32,7 @@ public class Manager : SoundGameObject
             if (Input.GetKeyDown(KeyCode.Return))
             {
                 FullReset();
+                PlayOneShot("start");
 
                 // DEBUG
                 GameObject.Find("StartText").GetComponent<Text>().text = "";
@@ -57,10 +58,16 @@ public class Manager : SoundGameObject
 
             if (timeLeft <= 0)
             {
+                //
+                // Score vertellen etc.
+                //
+
                 PlayOneShot("fail");
                 StopPlaying();
-                //FullReset();
                 player.FullReset();
+
+                // DEBUG
+                GameObject.Find("StartText").GetComponent<Text>().text = "Press enter to start";
             }
 
             // DEBUG
@@ -113,12 +120,14 @@ public class Manager : SoundGameObject
         timeLeft = Mathf.Clamp(timeLeft - Time.deltaTime, 0, timeMax);
         timeTickLeft = Mathf.Clamp(timeTickLeft - Time.deltaTime, 0, timeTickMax);
 
+
+
         if (timeTickLeft <= 0)
         {
-            PlayOneShot("edge", 0.4f);
+            PlayRandom("heartbeat", 10);
             if (timeLeft < 15)
             {
-                timeTickMax = 0.5f;
+                timeTickMax = 1f;
             }
          
             timeTickLeft = timeTickMax;
@@ -158,8 +167,8 @@ public class Manager : SoundGameObject
     {
         started = true;
         nrOfPins = 3;
-        timeMax = 30;
-        timeTickMax = 1;
+        timeMax = 15;
+        timeTickMax = 2;
         countdownTime = 5;
 
         // DEBUG
