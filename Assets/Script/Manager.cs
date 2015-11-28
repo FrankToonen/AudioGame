@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -11,6 +12,8 @@ public class Manager : SoundGameObject
     List<int> indices;
     int nrOfPins;
     float timeLeft, timeMax, timeTickLeft, timeTickMax;
+    float countdownTimeLeft, countdownTime;
+    bool isPlaying, started;
 
     protected override void Start()
     {
@@ -19,39 +22,57 @@ public class Manager : SoundGameObject
         frame = GameObject.Find("Frame");
         backplate = GameObject.Find("Backplate");
         player = GameObject.FindWithTag("Player").GetComponent<Pick>();
-        FullReset();
+        //FullReset();
     }
 
     void Update()
     {
-        UpdateTimer();
-
-        // Controleer of de speler alle pins gelocked heeft:
-        if (CheckWin())
+        if (!started)
         {
-            PlayOneShot("succes");
-            player.IncreaseScore(nrOfPins);
-            player.transform.localScale += new Vector3(2, 0, 0);
-            nrOfPins++;
+            if (Input.GetKeyDown(KeyCode.Return))
+            {
+                FullReset();
 
-            frame.transform.localScale += new Vector3(0, 1, 0);
-            backplate.transform.localScale += new Vector3(2, 0, 0);
-
-            Reset();
-        }
-
-        if (timeLeft <= 0)
+                // DEBUG
+                GameObject.Find("StartText").GetComponent<Text>().text = "";
+            }
+        } else
+        if (isPlaying & started)
         {
-            PlayOneShot("fail");
-            FullReset();
-            player.FullReset();
-        }
+            UpdateTimer();
 
-        if (Input.GetKeyDown(KeyCode.V))
+            // Controleer of de speler alle pins gelocked heeft:
+            if (CheckWin())
+            {
+                PlayOneShot("succes");
+                player.IncreaseScore(nrOfPins);
+                player.transform.localScale += new Vector3(2, 0, 0);
+                nrOfPins++;
+
+                frame.transform.localScale += new Vector3(0, 1, 0);
+                backplate.transform.localScale += new Vector3(2, 0, 0);
+
+                Reset();
+            }
+
+            if (timeLeft <= 0)
+            {
+                PlayOneShot("fail");
+                StopPlaying();
+                //FullReset();
+                player.FullReset();
+            }
+
+            // DEBUG
+            if (Input.GetKeyDown(KeyCode.V))
+            {
+                Color c = frame.GetComponent<Renderer>().material.color;
+                c.a = c.a == 1 ? 0.1f : 1;
+                frame.GetComponent<Renderer>().material.color = c;
+            }
+        } else if (!isPlaying && started)
         {
-            Color c = frame.GetComponent<Renderer>().material.color;
-            c.a = c.a == 1 ? 0.1f : 1;
-            frame.GetComponent<Renderer>().material.color = c;
+            UpdateCountdownTimer();
         }
     }
     	
@@ -81,6 +102,12 @@ public class Manager : SoundGameObject
         }
     }
 
+    void UpdateCountdownTimer()
+    {
+        countdownTimeLeft = Mathf.Clamp(countdownTimeLeft - Time.deltaTime, 0, countdownTime);
+        isPlaying = countdownTimeLeft <= 0;
+    }
+
     void UpdateTimer()
     {
         timeLeft = Mathf.Clamp(timeLeft - Time.deltaTime, 0, timeMax);
@@ -104,6 +131,7 @@ public class Manager : SoundGameObject
         int r = Random.Range(0, indices.Count - 1);
         int i = indices [r];
         indices.RemoveAt(r);
+
         return i;
     }
 
@@ -115,6 +143,7 @@ public class Manager : SoundGameObject
         {
             won = won && obj.GetComponent<Pin>().isSet;
         }
+
         return won;
     }
 
@@ -127,11 +156,16 @@ public class Manager : SoundGameObject
     // Zet alles terug naar de begintoestand:
     public void FullReset()
     {
+        started = true;
         nrOfPins = 3;
         timeMax = 30;
         timeTickMax = 1;
+        countdownTime = 5;
+
+        // DEBUG
         frame.transform.localScale = new Vector3(5, nrOfPins - 1, 5);
         backplate.transform.localScale = new Vector3(nrOfPins + 1, 5, 3);
+
         Reset();
     }
 
@@ -140,12 +174,31 @@ public class Manager : SoundGameObject
     {
         GeneratePins();
         player.Reset();
+
+        isPlaying = false;
         timeLeft = timeMax;
         timeTickLeft = timeTickMax;
+        countdownTimeLeft = countdownTime;
+    }
+
+    public void StopPlaying()
+    {
+        started = false;
+        isPlaying = false;
     }
 
     public int NrOfPins
     {
         get { return nrOfPins; }
+    }
+
+    public bool IsPlaying
+    {
+        get { return isPlaying; }
+    }
+
+    public bool Started
+    {
+        get { return started; }
     }
 }

@@ -26,13 +26,16 @@ public class Pick : SoundGameObject
 	
     void Update()
     {
-        ProcesInput();
-
-        // Laat alle pins die de speler niet geselecteerd heeft terug omlaag bewegen:
-        for (int i = 0; i < mgr.NrOfPins; i++)
+        if (mgr.IsPlaying)
         {
-            Pin pin = mgr.pins [i].GetComponent<Pin>();
-            pin.isMoving = i == selectedIndex;
+            ProcesInput();
+
+            // Laat alle pins die de speler niet geselecteerd heeft terug omlaag bewegen:
+            for (int i = 0; i < mgr.NrOfPins; i++)
+            {
+                Pin pin = mgr.pins [i].GetComponent<Pin>();
+                pin.isMoving = i == selectedIndex;
+            }
         }
     }
 
@@ -168,8 +171,12 @@ public class Pick : SoundGameObject
         if (lives <= 0)
         {
             mgr.PlaySound("Fail");
-            mgr.FullReset();
+            //mgr.FullReset();
+            mgr.StopPlaying();
             FullReset();
+
+            // DEBUG
+            GameObject.Find("StartText").GetComponent<Text>().text = "Press enter to start";
         }
     }
 
