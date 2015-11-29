@@ -100,7 +100,7 @@ public class Pick : SoundGameObject
 
             if (selectedPin.transform.position.y != selectedPin.maxHeight)
             {
-                PlaySound("tinkering");
+                PlaySound("tinkering", 0.5f);
             }
         } 
     }

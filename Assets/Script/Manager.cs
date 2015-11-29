@@ -38,7 +38,7 @@ public class Manager : SoundGameObject
 
                 // DEBUG
                 //GameObject.Find("StartText").GetComponent<Text>().text = "";
-            } else if (Input.GetKeyDown(KeyCode.Space))
+            } else if (Input.GetKeyDown(KeyCode.B))
             {
                 StopSound();
                 PlaySound("intro_controls");
@@ -135,14 +135,15 @@ public class Manager : SoundGameObject
         if (timeTickLeft <= 0)
         {
             PlayRandom("heartbeat", 10, 1.5f);
-            if (timeLeft < 15)
+            /*if (timeLeft < 15)
             {
                 timeTickMax = 1f;
             } else if (timeLeft < 5)
             {
                 timeTickMax = 0.5f;
-            }
-         
+            }*/
+
+            timeTickMax = Mathf.Clamp((timeLeft / timeMax) * 2, 0.7f, 2);
             timeTickLeft = timeTickMax;
         }
     }
@@ -180,7 +181,7 @@ public class Manager : SoundGameObject
     {
         started = true;
         nrOfPins = 3;
-        timeMax = 30;
+        timeMax = 60;
         timeTickMax = 2;
         countdownTime = 4;
 
@@ -217,7 +218,19 @@ public class Manager : SoundGameObject
         isPlaying = false;
 
         PlayOneShot("fail");
+        //PlayOneShot("fail_controls");
+        StartCoroutine(EndGame());
+    }
+
+    IEnumerator EndGame()
+    {
+        PlayOneShot("reached_level" + (nrOfPins - 2));
+
+        yield return new WaitForSeconds(3);
+
         PlayOneShot("fail_controls");
+
+        yield return null;
     }
 
     public int NrOfPins
