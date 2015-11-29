@@ -23,7 +23,8 @@ public class Manager : SoundGameObject
         //backplate = GameObject.Find("Backplate");
 
         player = GameObject.FindWithTag("Player").GetComponent<Pick>();
-        PlaySound("intro_controls");
+        //PlaySound("intro_controls");
+        StartCoroutine(StartGame());
     }
 
     void Update()
@@ -220,6 +221,17 @@ public class Manager : SoundGameObject
         PlayOneShot("fail");
         //PlayOneShot("fail_controls");
         StartCoroutine(EndGame());
+    }
+
+    IEnumerator StartGame()
+    {
+        PlayOneShot("intro_title");
+
+        yield return new WaitForSeconds(2);
+
+        PlayOneShot("intro_controls");
+
+        yield return null;
     }
 
     IEnumerator EndGame()
