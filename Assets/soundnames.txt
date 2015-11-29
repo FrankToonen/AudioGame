@@ -1,0 +1,20 @@
+break - Breken van de lockpick
+changeindex - verschuiven van de lockpick naar een andere pin
+click - vastzetten van een pin
+edge - voorbij de pins proberen te bewegen
+fail - game over
+movepick - pin aanvoelen voor volgorde
+succes - level winnen
+tinkering - pin omhoog bewegen
+heartbeat 01 tm 10 - hartslag geluid voor aanduiden timer, random uit 10 samples
+
+------- Nog geen geluid
+start - Speelt af zodra de timer begint te lopen aan het begin van elk level
+background - Sirenes, blaffende honden, gehijg, etc. als achtergrond geluiden. Noem deze files background + nummer (background01 etc.)
+voiceover:
+	- Uitleg controls
+	- Intro level 1
+		- "Gotta get this door open"
+	- Intro level 2+
+		- "Another door?!"
+

@@ -4,6 +4,7 @@ using System.Collections;
 [RequireComponent (typeof(AudioSource))]
 public class SoundGameObject : MonoBehaviour
 {
+    protected float lengthSoundPlaying;
     AudioClip clip;
     protected AudioSource source;
 
@@ -33,11 +34,16 @@ public class SoundGameObject : MonoBehaviour
 
     public void PlayRandom(string assetName, int amountOfSamples, float volume = 1)
     {
-        int r = Random.Range(0, amountOfSamples);
+        int r = Random.Range(1, amountOfSamples + 1);
         string s = r < 10 ? "0" + r : r.ToString();
         clip = Resources.Load<AudioClip>("Sounds/" + assetName + "/" + assetName + s);
         source.volume = volume;
+
+        lengthSoundPlaying = clip.length;
+
         source.PlayOneShot(clip);
+
+
     }
 
     public void StopSound()
