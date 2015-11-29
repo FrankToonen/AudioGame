@@ -5,7 +5,7 @@ using System.Collections;
 public class Pick : SoundGameObject
 {
     Manager mgr;
-    Text scoreText, livesText;
+    //Text scoreText, livesText;
 
     int selectedIndex, lives, nextIndex, score, startingIndex;
     float moveSpeed;
@@ -16,8 +16,9 @@ public class Pick : SoundGameObject
         base.Start();
 
         mgr = GameObject.Find("Manager").GetComponent<Manager>();
-        scoreText = GameObject.Find("ScoreText").GetComponent<Text>();
-        livesText = GameObject.Find("LivesText").GetComponent<Text>();
+
+        //scoreText = GameObject.Find("ScoreText").GetComponent<Text>();
+        //livesText = GameObject.Find("LivesText").GetComponent<Text>();
 
         moveSpeed = 0.01f;
 
@@ -159,33 +160,31 @@ public class Pick : SoundGameObject
     public void IncreaseScore(int nrOfPins)
     {
         score += nrOfPins * 5;
-        scoreText.text = "Score: " + score;
+        //scoreText.text = "Score: " + score;
     }
 
     // Verlies levens. Wanneer je geen levens meer hebt, hard reset:
     public void LoseLife()
     {
         lives--;
-        livesText.text = "Lives: " + lives;
+        //livesText.text = "Lives: " + lives;
 
         if (lives <= 0)
         {
-            mgr.PlaySound("Fail");
-            //mgr.FullReset();
             mgr.StopPlaying();
             FullReset();
 
             // DEBUG
-            GameObject.Find("StartText").GetComponent<Text>().text = "Press enter to start";
+            //GameObject.Find("StartText").GetComponent<Text>().text = "Press enter to start";
         }
     }
 
     public void FullReset()
     {
         score = 0;
-        scoreText.text = "Score: " + score;
+        //scoreText.text = "Score: " + score;
         lives = 5;
-        livesText.text = "Lives: " + lives;
+        //livesText.text = "Lives: " + lives;
 
         transform.localScale = new Vector3(5, 1, 1);
 

@@ -8,7 +8,7 @@ public class Manager : SoundGameObject
     public GameObject pinPrefab;
     public GameObject[] pins;
     public Pick player;
-    GameObject frame, backplate;
+    //GameObject frame, backplate;
     List<int> indices;
     int nrOfPins;
     float timeLeft, timeMax, timeTickLeft, timeTickMax;
@@ -19,10 +19,11 @@ public class Manager : SoundGameObject
     {
         base.Start();
 
-        frame = GameObject.Find("Frame");
-        backplate = GameObject.Find("Backplate");
+        //frame = GameObject.Find("Frame");
+        //backplate = GameObject.Find("Backplate");
+
         player = GameObject.FindWithTag("Player").GetComponent<Pick>();
-        //FullReset();
+        PlaySound("intro_controls");
     }
 
     void Update()
@@ -31,11 +32,16 @@ public class Manager : SoundGameObject
         {
             if (Input.GetKeyDown(KeyCode.Return))
             {
+                StopSound();
                 FullReset();
                 PlayOneShot("start");
 
                 // DEBUG
-                GameObject.Find("StartText").GetComponent<Text>().text = "";
+                //GameObject.Find("StartText").GetComponent<Text>().text = "";
+            } else if (Input.GetKeyDown(KeyCode.Space))
+            {
+                StopSound();
+                PlaySound("intro_controls");
             }
         } else
         if (isPlaying & started)
@@ -50,8 +56,9 @@ public class Manager : SoundGameObject
                 player.transform.localScale += new Vector3(2, 0, 0);
                 nrOfPins++;
 
-                frame.transform.localScale += new Vector3(0, 1, 0);
-                backplate.transform.localScale += new Vector3(2, 0, 0);
+                // DEBUG
+                //frame.transform.localScale += new Vector3(0, 1, 0);
+                //backplate.transform.localScale += new Vector3(2, 0, 0);
 
                 Reset();
             }
@@ -62,21 +69,20 @@ public class Manager : SoundGameObject
                 // Score vertellen etc.
                 //
 
-                PlayOneShot("fail");
                 StopPlaying();
                 player.FullReset();
 
                 // DEBUG
-                GameObject.Find("StartText").GetComponent<Text>().text = "Press enter to start";
+                //GameObject.Find("StartText").GetComponent<Text>().text = "Press enter to start";
             }
 
             // DEBUG
-            if (Input.GetKeyDown(KeyCode.V))
-            {
-                Color c = frame.GetComponent<Renderer>().material.color;
-                c.a = c.a == 1 ? 0.1f : 1;
-                frame.GetComponent<Renderer>().material.color = c;
-            }
+            //if (Input.GetKeyDown(KeyCode.V))
+            //{
+            //    Color c = frame.GetComponent<Renderer>().material.color;
+            //    c.a = c.a == 1 ? 0.1f : 1;
+            //    frame.GetComponent<Renderer>().material.color = c;
+            //}
         } else if (!isPlaying && started)
         {
             UpdateCountdownTimer();
@@ -124,7 +130,7 @@ public class Manager : SoundGameObject
 
         if (timeTickLeft <= 0)
         {
-            PlayRandom("heartbeat", 10);
+            PlayRandom("heartbeat", 10, 1.5f);
             if (timeLeft < 15)
             {
                 timeTickMax = 1f;
@@ -172,8 +178,8 @@ public class Manager : SoundGameObject
         countdownTime = 5;
 
         // DEBUG
-        frame.transform.localScale = new Vector3(5, nrOfPins - 1, 5);
-        backplate.transform.localScale = new Vector3(nrOfPins + 1, 5, 3);
+        //frame.transform.localScale = new Vector3(5, nrOfPins - 1, 5);
+        //backplate.transform.localScale = new Vector3(nrOfPins + 1, 5, 3);
 
         Reset();
     }
@@ -194,6 +200,9 @@ public class Manager : SoundGameObject
     {
         started = false;
         isPlaying = false;
+
+        PlayOneShot("fail");
+        PlayOneShot("fail_controls");
     }
 
     public int NrOfPins
