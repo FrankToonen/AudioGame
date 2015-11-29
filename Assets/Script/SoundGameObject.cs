@@ -42,8 +42,6 @@ public class SoundGameObject : MonoBehaviour
         lengthSoundPlaying = clip.length;
 
         source.PlayOneShot(clip);
-
-
     }
 
     public void StopSound()

@@ -21,7 +21,7 @@ public class Background_Noise : SoundGameObject
 	
     void Update()
     {
-        if (mgr.IsPlaying)
+        if (mgr.Started)
         {
             timeLeft = Mathf.Clamp(timeLeft - Time.deltaTime, 0, timeMax);
             if (timeLeft <= 0)
