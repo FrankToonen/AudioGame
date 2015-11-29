@@ -34,7 +34,7 @@ public class Manager : SoundGameObject
             {
                 StopSound();
                 FullReset();
-                PlayOneShot("start");
+                PlayOneShot("start_level1");
 
                 // DEBUG
                 //GameObject.Find("StartText").GetComponent<Text>().text = "";
@@ -52,6 +52,8 @@ public class Manager : SoundGameObject
             if (CheckWin())
             {
                 PlayOneShot("succes");
+                PlayOneShot("start_nextlevel");
+
                 player.IncreaseScore(nrOfPins);
                 player.transform.localScale += new Vector3(2, 0, 0);
                 nrOfPins++;
@@ -119,6 +121,10 @@ public class Manager : SoundGameObject
     {
         countdownTimeLeft = Mathf.Clamp(countdownTimeLeft - Time.deltaTime, 0, countdownTime);
         isPlaying = countdownTimeLeft <= 0;
+        if (isPlaying)
+        {
+            PlaySound("succes"); // Anders geluid zoeken onder naam 'start'
+        }
     }
 
     void UpdateTimer()
@@ -126,14 +132,15 @@ public class Manager : SoundGameObject
         timeLeft = Mathf.Clamp(timeLeft - Time.deltaTime, 0, timeMax);
         timeTickLeft = Mathf.Clamp(timeTickLeft - Time.deltaTime, 0, timeTickMax);
 
-
-
         if (timeTickLeft <= 0)
         {
             PlayRandom("heartbeat", 10, 1.5f);
             if (timeLeft < 15)
             {
                 timeTickMax = 1f;
+            } else if (timeLeft < 5)
+            {
+                timeTickMax = 0.5f;
             }
          
             timeTickLeft = timeTickMax;
@@ -173,9 +180,9 @@ public class Manager : SoundGameObject
     {
         started = true;
         nrOfPins = 3;
-        timeMax = 15;
+        timeMax = 30;
         timeTickMax = 2;
-        countdownTime = 5;
+        countdownTime = 4;
 
         // DEBUG
         //frame.transform.localScale = new Vector3(5, nrOfPins - 1, 5);
@@ -192,8 +199,16 @@ public class Manager : SoundGameObject
 
         isPlaying = false;
         timeLeft = timeMax;
-        timeTickLeft = timeTickMax;
+        timeTickLeft = 0;
         countdownTimeLeft = countdownTime;
+    }
+
+    public void ResetPins()
+    {
+        foreach (GameObject pin in pins)
+        {
+            pin.GetComponent<Pin>().Reset();
+        }
     }
 
     public void StopPlaying()

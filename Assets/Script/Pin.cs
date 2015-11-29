@@ -5,6 +5,7 @@ using XInputDotNetPure;
 public class Pin : SoundGameObject
 {
     Manager mgr;
+    Vector3 startPosition;
     public float maxHeight, targetHeight;
     int index;
     public bool isSet, isMoving, hitTop;
@@ -13,6 +14,7 @@ public class Pin : SoundGameObject
     public void Initialize(int index)
     {
         mgr = GameObject.Find("Manager").GetComponent<Manager>();
+        startPosition = transform.position;
         this.index = index;
         targetHeight = 0.2f;
         Reset();
@@ -28,7 +30,8 @@ public class Pin : SoundGameObject
             {
                 mgr.player.LoseLife();
                 mgr.PlayOneShot("break");
-                mgr.Reset();
+                //mgr.Reset();
+                mgr.ResetPins();
             } // Anders speel geluid af:
             else
             {
@@ -80,6 +83,7 @@ public class Pin : SoundGameObject
 
     public void Reset()
     {
+        transform.position = startPosition;
         isSet = false;
         pastTarget = false;
         hitTop = false;
